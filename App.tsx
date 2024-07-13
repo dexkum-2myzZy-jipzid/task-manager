@@ -1,25 +1,24 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
-import { useEffect, useState } from "react";
 import HomeTabs from "./app/navigation/HomeTabs";
 import AuthNavigator from "./app/navigation/AuthNavigator";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { FIREBASE_AUTH } from "./config/FirebaseConfig";
+import { UserProvider, useUser } from "./app/context/UserContext";
 
-export default function App() {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log("user:" + user);
-      setUser(user);
-    });
-  }, []);
+const AppContent = () => {
+  const { user } = useUser();
 
   return (
     <NavigationContainer>
       {user ? <HomeTabs /> : <AuthNavigator />}
     </NavigationContainer>
+  );
+};
+
+export default function App() {
+  return (
+    <UserProvider>
+      <AppContent />
+    </UserProvider>
   );
 }
 

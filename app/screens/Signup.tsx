@@ -22,7 +22,7 @@ const Signup = () => {
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
-      alert("Passwords do not match.");
+      Alert.alert("Passwords do not match.");
       return;
     }
     setLoading(true);
@@ -83,6 +83,7 @@ const Signup = () => {
           title="Sign Up"
           onPress={handleSignup}
           buttonStyle={styles.signupButton}
+          loading={loading}
         />
       </ScrollView>
     </KeyboardAvoidingView>
