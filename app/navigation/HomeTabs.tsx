@@ -23,7 +23,7 @@ function TaskStackNavigator() {
 const HomeTabs = () => (
   <Tab.Navigator>
     <Tab.Screen
-      name="TasksStack"
+      name="Tasks"
       component={TaskStackNavigator}
       options={{
         headerShown: false,
