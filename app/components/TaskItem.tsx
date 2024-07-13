@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { Icon } from "react-native-elements";
+import { Icon, Image } from "react-native-elements";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore"; // Assuming these are the correct imports
 import { FIREBASE_DB } from "../../config/FirebaseConfig";
 import { Task } from "../model/Task";
@@ -39,13 +39,29 @@ const TaskItem = ({ item }: { item: Task }) => {
 
   return (
     <View style={styles.todoContainer}>
-      <TouchableOpacity onPress={toggleDone} style={styles.todo}>
-        {item.done ? (
-          <Icon name="check-circle" type="feather" size={24} color="green" />
-        ) : (
-          <Icon name="circle" type="feather" size={24} color="grey" />
+      <View style={styles.left}>
+        <TouchableOpacity onPress={toggleDone} style={styles.todo}>
+          {item.done ? (
+            <Icon name="check-circle" type="feather" size={24} color="green" />
+          ) : (
+            <Icon name="circle" type="feather" size={24} color="grey" />
+          )}
+        </TouchableOpacity>
+        {item.imgUrl && (
+          <Image
+            source={{
+              uri: item.imgUrl || "https://example.com/default-image.png",
+            }}
+            style={{
+              width: 25,
+              height: 25,
+              borderWidth: 2, // Set the border width
+              borderColor: "white", // Set the border color
+              borderRadius: 5, // Optional: if you want rounded corners
+            }}
+          />
         )}
-      </TouchableOpacity>
+      </View>
       {isEditing ? (
         <TextInput
           onChangeText={setText}
@@ -56,6 +72,7 @@ const TaskItem = ({ item }: { item: Task }) => {
       ) : (
         <Text onPress={handleTextPress}>{text}</Text>
       )}
+
       <TouchableOpacity onPress={deleteTodo}>
         <Icon name="trash" type="feather" size={24} color="red" />
       </TouchableOpacity>
@@ -71,6 +88,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+  },
+  left: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   todo: {
     display: "flex",

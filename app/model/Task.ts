@@ -6,9 +6,14 @@ export interface Task {
   createdAt: Date;
   lastUpdatedAt: Date;
   finishedAt: Date | null;
+  imgUrl?: string;
 }
 
-export function createTask(title: string, userEmail: string): Task {
+export function createTask(
+  title: string,
+  userEmail: string,
+  imgUrl: string
+): Task {
   return {
     title,
     done: false,
@@ -16,5 +21,6 @@ export function createTask(title: string, userEmail: string): Task {
     createdAt: new Date(),
     lastUpdatedAt: new Date(),
     finishedAt: null, // Assuming null as default, indicating not finished
+    imgUrl: imgUrl, // Default empty string
   };
 }
