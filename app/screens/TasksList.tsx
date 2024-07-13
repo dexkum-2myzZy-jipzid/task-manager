@@ -28,10 +28,6 @@ const TasksList = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    console.log("Image changed", image);
-  }, [image]);
-
-  useEffect(() => {
     if (!user) {
       navigation.navigate("Login");
     }
