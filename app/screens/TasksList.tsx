@@ -33,12 +33,6 @@ const TasksList = () => {
       navigation.navigate("Login");
     }
 
-    navigation.setOptions({
-      headerRight: () => (
-        <Button title="Add" onPress={() => navigation.navigate("AddTask")} />
-      ),
-    });
-
     const tasksRef = collection(FIREBASE_DB, "tasks");
 
     const q = query(tasksRef, where("createdBy", "==", user?.email));
@@ -60,7 +54,10 @@ const TasksList = () => {
   function renderItem({ item }: { item: Task }) {
     const ref = doc(FIREBASE_DB, `tasks/${item.id}`);
     const toggleDone = async () => {
-      await updateDoc(ref, { done: !item.done });
+      await updateDoc(ref, {
+        done: !item.done,
+        finishedAt: item.done ? null : new Date(),
+      });
     };
 
     const deleteTodo = async () => {
@@ -71,14 +68,14 @@ const TasksList = () => {
       <View style={styles.todoContainer}>
         <TouchableOpacity onPress={toggleDone} style={styles.todo}>
           {item.done ? (
-            <Icon name="check-circle" type="feather" size={24} color="black" />
+            <Icon name="check-circle" type="feather" size={24} color="green" />
           ) : (
-            <Icon name="circle" type="feather" size={24} color="black" />
+            <Icon name="circle" type="feather" size={24} color="grey" />
           )}
-          <Text style={styles.todoText}>{item.title}</Text>
         </TouchableOpacity>
+        <Text style={styles.todoText}>{item.title}</Text>
         <TouchableOpacity onPress={deleteTodo}>
-          <Icon name="trash-2" type="feather" size={24} color="red" />
+          <Icon name="trash" type="feather" size={24} color="red" />
         </TouchableOpacity>
       </View>
     );

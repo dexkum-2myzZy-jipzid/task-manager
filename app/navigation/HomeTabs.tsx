@@ -5,7 +5,6 @@ import Leaderboard from "../screens/Leaderboard";
 import Me from "../screens/Me";
 import { Button, Icon } from "react-native-elements";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import AddTask from "../screens/AddTask";
 
 const Tab = createBottomTabNavigator();
 
@@ -15,7 +14,6 @@ function TaskStackNavigator() {
   return (
     <TaskStack.Navigator initialRouteName="TasksList">
       <TaskStack.Screen name="TasksList" component={TasksList} />
-      <TaskStack.Screen name="AddTask" component={AddTask} />
     </TaskStack.Navigator>
   );
 }

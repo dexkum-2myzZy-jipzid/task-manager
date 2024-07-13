@@ -1,7 +1,6 @@
 export interface Task {
   id?: string;
   title: string;
-  content: string;
   done: boolean;
   createdBy: string; // user email
   createdAt: Date;
@@ -12,7 +11,6 @@ export interface Task {
 export function createTask(title: string, userEmail: string): Task {
   return {
     title,
-    content: "",
     done: false,
     createdBy: userEmail, // Use the provided user email
     createdAt: new Date(),
