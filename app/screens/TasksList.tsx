@@ -20,10 +20,10 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { Task } from "../Task";
+import { Task } from "../model/Task";
 import { Icon } from "react-native-elements";
 
-const Tasks = () => {
+const TasksList = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const { user } = useUser();
   const navigation = useNavigation();
@@ -113,4 +113,4 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 });
-export default Tasks;
+export default TasksList;

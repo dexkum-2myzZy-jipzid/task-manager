@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Tasks from "../screens/Tasks";
+import TasksList from "../screens/TasksList";
 import Leaderboard from "../screens/Leaderboard";
 import Me from "../screens/Me";
 import { Button, Icon } from "react-native-elements";
@@ -13,8 +13,8 @@ const TaskStack = createNativeStackNavigator();
 
 function TaskStackNavigator() {
   return (
-    <TaskStack.Navigator initialRouteName="Tasks">
-      <TaskStack.Screen name="Tasks" component={Tasks} />
+    <TaskStack.Navigator initialRouteName="TasksList">
+      <TaskStack.Screen name="TasksList" component={TasksList} />
       <TaskStack.Screen name="AddTask" component={AddTask} />
     </TaskStack.Navigator>
   );
