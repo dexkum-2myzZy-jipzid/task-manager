@@ -8,8 +8,9 @@ import {
 } from "react-native";
 import { Icon, Image } from "react-native-elements";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore"; // Assuming these are the correct imports
-import { FIREBASE_DB } from "../../config/FirebaseConfig";
+import { FIREBASE_DB, FIREBASE_STORAGE } from "../../config/FirebaseConfig";
 import { Task } from "../model/Task";
+import { ref as imageRef, deleteObject } from "firebase/storage";
 
 const TaskItem = ({ item }: { item: Task }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -24,6 +25,11 @@ const TaskItem = ({ item }: { item: Task }) => {
   };
 
   const deleteTodo = async () => {
+    if (item.imgUrl) {
+      //delete image from storage
+      const obj = imageRef(FIREBASE_STORAGE, item.imgUrl);
+      await deleteObject(obj);
+    }
     await deleteDoc(ref);
   };
 
