@@ -2,20 +2,15 @@ import { View, FlatList, Button, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../context/UserContext";
 import { useEffect, useState } from "react";
-import { FIREBASE_DB, FIREBASE_STORAGE } from "../../config/FirebaseConfig";
-import {
-  collection,
-  onSnapshot,
-  query,
-  where,
-  addDoc,
-} from "firebase/firestore";
-import { createTask, Task } from "../model/Task";
+import { FIREBASE_DB } from "../../config/FirebaseConfig";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { newTask, Task } from "../model/Task";
 import { Image, Input, Button as OutlineBtn } from "react-native-elements";
 import TaskItem from "../components/TaskItem";
-import * as FileSystem from "expo-file-system";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useImagePicker } from "../context/useImagePicker";
+import { DB_NAME } from "../constants";
+import { createTask, uploadImage } from "../service";
+import { sortAndMergeTasks } from "../utils";
 
 const TasksList = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -32,7 +27,7 @@ const TasksList = () => {
       navigation.navigate("Login");
     }
 
-    const tasksRef = collection(FIREBASE_DB, "tasks");
+    const tasksRef = collection(FIREBASE_DB, DB_NAME);
 
     const q = query(tasksRef, where("createdBy", "==", user?.email));
 
@@ -44,7 +39,7 @@ const TasksList = () => {
           ...documentSnapshot.data(),
         } as Task);
       });
-      setTasks(tasksArray);
+      setTasks(sortAndMergeTasks(tasksArray));
     });
 
     return () => subscriber();
@@ -59,53 +54,27 @@ const TasksList = () => {
     }
 
     if (image) {
-      await uploadImage(image);
+      await handleImageUpload(image);
     } else {
       setLoading(true);
-      await addDoc(
-        collection(FIREBASE_DB, "tasks"),
-        createTask(title, user?.email, imageUrl || "")
-      );
+      await createTask(newTask(title, user?.email, imageUrl || ""));
       setLoading(false);
       resetAllElements();
     }
   };
 
   //upload image
-  const uploadImage = async (image: string) => {
-    setLoading(true);
-    const { uri } = await FileSystem.getInfoAsync(image);
-
-    const response = await fetch(uri);
-    const file = await response.blob();
-    const filename = uri.substring(uri.lastIndexOf("/") + 1);
-
-    const storageRef = ref(FIREBASE_STORAGE, `images/${filename}`);
-
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
-      },
-      (error) => {
-        console.error(error);
-        alert("Failed to upload image");
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-          await addDoc(
-            collection(FIREBASE_DB, "tasks"),
-            createTask(title, user?.email!, downloadURL)
-          );
-          setLoading(false);
-          resetAllElements();
-        });
-      }
-    );
+  const handleImageUpload = async (imagePath: string) => {
+    try {
+      setLoading(true); // Assuming setLoading changes a state to show a loading indicator
+      const downloadURL = await uploadImage(imagePath);
+      await createTask(newTask(title, user?.email!, downloadURL));
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
+      resetAllElements();
+    }
   };
 
   const resetAllElements = () => {

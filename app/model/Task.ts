@@ -9,7 +9,7 @@ export interface Task {
   imgUrl?: string;
 }
 
-export function createTask(
+export function newTask(
   title: string,
   userEmail: string,
   imgUrl: string

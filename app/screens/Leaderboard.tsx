@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { Task } from "../model/Task";
 import { UserTaskCount } from "../model/UserTaskCount";
+import { DB_NAME } from "../constants";
 
 const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState<UserTaskCount[]>([]);
@@ -57,7 +58,7 @@ const Leaderboard = () => {
       console.log("startTimestamp:", startTimestamp);
       console.log("endTimestamp:", endTimestamp);
 
-      const tasksCollection = collection(FIREBASE_DB, "tasks");
+      const tasksCollection = collection(FIREBASE_DB, DB_NAME);
       const q = query(
         tasksCollection,
         where("createdAt", ">=", startTimestamp),

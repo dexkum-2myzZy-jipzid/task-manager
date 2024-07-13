@@ -7,78 +7,102 @@ import {
   StyleSheet,
 } from "react-native";
 import { Icon, Image } from "react-native-elements";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore"; // Assuming these are the correct imports
-import { FIREBASE_DB, FIREBASE_STORAGE } from "../../config/FirebaseConfig";
+import { doc } from "firebase/firestore"; // Assuming these are the correct imports
+import { FIREBASE_DB } from "../../config/FirebaseConfig";
 import { Task } from "../model/Task";
-import { ref as imageRef, deleteObject } from "firebase/storage";
+import { deleteTask, updateTask } from "../service";
+import { DEFAULT_AVATAR_URL } from "../constants";
+
+// check icon component
+const TaskIcon = ({
+  done,
+  onPress,
+}: {
+  done: boolean;
+  onPress: () => void;
+}) => (
+  <TouchableOpacity onPress={onPress}>
+    <Icon
+      name={done ? "check-circle" : "circle"}
+      type="feather"
+      size={24}
+      color={done ? "green" : "grey"}
+    />
+  </TouchableOpacity>
+);
+
+// TaskImage Component
+const TaskImage = ({ imgUrl }: { imgUrl?: string }) =>
+  imgUrl && (
+    <Image
+      source={{ uri: imgUrl || DEFAULT_AVATAR_URL }}
+      style={styles.image}
+    />
+  );
+
+// EditableText Component
+const EditableText = ({
+  isEditing,
+  text,
+  onChangeText,
+  startEditing,
+  finishEditing,
+}: {
+  isEditing: boolean;
+  text: string;
+  onChangeText: (text: string) => void;
+  startEditing: () => void;
+  finishEditing: () => void;
+}) =>
+  isEditing ? (
+    <TextInput
+      onChangeText={onChangeText}
+      onBlur={finishEditing}
+      value={text}
+      autoFocus
+    />
+  ) : (
+    <Text onPress={startEditing}>{text}</Text>
+  );
 
 const TaskItem = ({ item }: { item: Task }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(item.title);
   const ref = doc(FIREBASE_DB, `tasks/${item.id}`);
 
-  const toggleDone = async () => {
-    await updateDoc(ref, {
+  const toggleDone = async () =>
+    await updateTask(ref, {
+      ...item,
       done: !item.done,
       finishedAt: item.done ? null : new Date(),
     });
-  };
 
-  const deleteTodo = async () => {
-    if (item.imgUrl) {
-      //delete image from storage
-      const obj = imageRef(FIREBASE_STORAGE, item.imgUrl);
-      await deleteObject(obj);
-    }
-    await deleteDoc(ref);
-  };
+  const deleteTodo = async () => await deleteTask(ref, item);
 
-  const handleTextPress = () => setIsEditing(true);
-  const handleBlur = async () => {
+  // Edit task
+  const startEditing = () => setIsEditing(true);
+  const finishEditing = async () => {
     if (text.trim() === "" || text === item.title) {
       setIsEditing(false);
       return;
     }
-    await updateDoc(ref, { title: text });
+    await updateTask(ref, { ...item, title: text });
     setIsEditing(false);
   };
 
   return (
     <View style={styles.todoContainer}>
       <View style={styles.left}>
-        <TouchableOpacity onPress={toggleDone} style={styles.todo}>
-          {item.done ? (
-            <Icon name="check-circle" type="feather" size={24} color="green" />
-          ) : (
-            <Icon name="circle" type="feather" size={24} color="grey" />
-          )}
-        </TouchableOpacity>
-        {item.imgUrl && (
-          <Image
-            source={{
-              uri: item.imgUrl || "https://example.com/default-image.png",
-            }}
-            style={{
-              width: 25,
-              height: 25,
-              borderWidth: 2, // Set the border width
-              borderColor: "white", // Set the border color
-              borderRadius: 5, // Optional: if you want rounded corners
-            }}
-          />
-        )}
+        <TaskIcon done={item.done} onPress={toggleDone} />
+        <TaskImage imgUrl={item.imgUrl} />
       </View>
-      {isEditing ? (
-        <TextInput
-          onChangeText={setText}
-          onBlur={handleBlur}
-          value={text}
-          autoFocus={true}
-        />
-      ) : (
-        <Text onPress={handleTextPress}>{text}</Text>
-      )}
-
+      <EditableText
+        isEditing={isEditing}
+        text={text}
+        onChangeText={setText}
+        startEditing={startEditing}
+        finishEditing={finishEditing}
+      />
       <TouchableOpacity onPress={deleteTodo}>
         <Icon name="trash" type="feather" size={24} color="red" />
       </TouchableOpacity>
@@ -99,6 +123,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  image: {
+    width: 25,
+    height: 25,
+    borderWidth: 2,
+    borderColor: "white",
+    borderRadius: 5,
   },
   todo: {
     display: "flex",
