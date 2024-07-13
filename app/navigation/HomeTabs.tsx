@@ -3,28 +3,16 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TasksList from "../screens/TasksList";
 import Leaderboard from "../screens/Leaderboard";
 import Me from "../screens/Me";
-import { Button, Icon } from "react-native-elements";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Icon } from "react-native-elements";
 
 const Tab = createBottomTabNavigator();
-
-const TaskStack = createNativeStackNavigator();
-
-function TaskStackNavigator() {
-  return (
-    <TaskStack.Navigator initialRouteName="TasksList">
-      <TaskStack.Screen name="TasksList" component={TasksList} />
-    </TaskStack.Navigator>
-  );
-}
 
 const HomeTabs = () => (
   <Tab.Navigator>
     <Tab.Screen
       name="Tasks"
-      component={TaskStackNavigator}
+      component={TasksList}
       options={{
-        headerShown: false,
         tabBarIcon: ({ color, size }) => (
           <Icon name="check" type="font-awesome" color={color} size={size} />
         ),

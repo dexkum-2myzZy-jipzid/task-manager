@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../context/UserContext";
 import { useEffect, useState } from "react";
 import { FIREBASE_DB } from "../../config/FirebaseConfig";
@@ -20,11 +20,12 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { Task } from "../model/Task";
-import { Icon } from "react-native-elements";
+import { createTask, Task } from "../model/Task";
+import { Icon, Input } from "react-native-elements";
 
 const TasksList = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [title, setTitle] = useState("");
   const { user } = useUser();
   const navigation = useNavigation();
 
@@ -81,8 +82,29 @@ const TasksList = () => {
     );
   }
 
+  const addTask = async () => {
+    if (title.trim() === "") {
+      alert("Please enter a task");
+      return;
+    }
+
+    if (user?.email == null) return;
+
+    await addDoc(
+      collection(FIREBASE_DB, "tasks"),
+      createTask(title, user?.email)
+    );
+    setTitle("");
+  };
+
   return (
     <View>
+      <Input
+        placeholder="Add a task"
+        value={title}
+        onChangeText={setTitle}
+        rightIcon={<Button title="Add" onPress={addTask} />}
+      />
       <FlatList
         data={tasks}
         keyExtractor={(task: Task) => task.id || ""}
