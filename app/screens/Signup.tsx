@@ -11,6 +11,7 @@ import { Button } from "react-native-elements";
 import IconInput from "../components/IconInput";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { FIREBASE_AUTH } from "../../config/FirebaseConfig";
+import { validateEmail } from "../utils";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -21,10 +22,21 @@ const Signup = () => {
   const auth = FIREBASE_AUTH;
 
   const handleSignup = async () => {
-    if (password !== confirmPassword) {
-      Alert.alert("Passwords do not match.");
+    if (!name || !email || !password || !confirmPassword) {
+      alert("Please fill in all fields.");
       return;
     }
+
+    if (!validateEmail(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(

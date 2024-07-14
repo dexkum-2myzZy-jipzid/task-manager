@@ -4,6 +4,7 @@ import { Button } from "react-native-elements";
 import { FIREBASE_AUTH } from "../../config/FirebaseConfig";
 import IconInput from "../components/IconInput";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { validateEmail } from "../utils";
 
 const Login = ({ navigation }: any) => {
   const [email, setEmail] = useState("");
@@ -12,6 +13,16 @@ const Login = ({ navigation }: any) => {
   const auth = FIREBASE_AUTH;
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(

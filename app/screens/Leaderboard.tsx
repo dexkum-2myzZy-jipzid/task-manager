@@ -17,7 +17,7 @@ import { getTimePeriod } from "../utils";
 
 const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState<UserTaskCount[]>([]);
-  const [filter, setFilter] = useState<string>("daily");
+  const [filter, setFilter] = useState<string>("all");
 
   const getButtonStyle = (buttonFilter: string) => {
     return filter === buttonFilter
@@ -27,18 +27,24 @@ const Leaderboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { start, end } = getTimePeriod(filter);
+      let q;
 
-      const startTimestamp = Timestamp.fromDate(start);
-      const endTimestamp = Timestamp.fromDate(end);
+      if (filter === "all") {
+        const tasksCollection = collection(FIREBASE_DB, DB_NAME);
+        q = query(tasksCollection, where("done", "==", true));
+      } else {
+        const { start, end } = getTimePeriod(filter);
+        const startTimestamp = Timestamp.fromDate(start);
+        const endTimestamp = Timestamp.fromDate(end);
 
-      const tasksCollection = collection(FIREBASE_DB, DB_NAME);
-      const q = query(
-        tasksCollection,
-        where("createdAt", ">=", startTimestamp),
-        where("createdAt", "<=", endTimestamp),
-        where("done", "==", true)
-      );
+        const tasksCollection = collection(FIREBASE_DB, DB_NAME);
+        q = query(
+          tasksCollection,
+          where("createdAt", ">=", startTimestamp),
+          where("createdAt", "<=", endTimestamp),
+          where("done", "==", true)
+        );
+      }
 
       try {
         const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(q);
@@ -73,6 +79,11 @@ const Leaderboard = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Ranking</Text>
       <View style={styles.filterContainer}>
+        <TouchableOpacity
+          onPress={() => setFilter("all")}
+          style={getButtonStyle("all")}>
+          <Text style={styles.filterTitle}>all</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setFilter("daily")}
           style={getButtonStyle("daily")}>

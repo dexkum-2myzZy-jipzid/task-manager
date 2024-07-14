@@ -51,3 +51,8 @@ export const getTimePeriod = (filter: string): { start: Date; end: Date } => {
 
   return { start: startOfPeriod, end: endOfPeriod };
 };
+
+export function validateEmail(email: string) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
