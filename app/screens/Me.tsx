@@ -4,6 +4,7 @@ import { useUser } from "../context/UserContext";
 import { useState } from "react";
 import { FIREBASE_AUTH } from "../../config/FirebaseConfig";
 import { signOut } from "firebase/auth";
+import { DEFAULT_AVATAR_URL } from "../constants";
 
 const Me = () => {
   const { user } = useUser();
@@ -29,9 +30,7 @@ const Me = () => {
     <View style={styles.container}>
       <Avatar
         rounded
-        source={{
-          uri: user?.photoURL ?? "https://example.com/default-avatar.png",
-        }}
+        source={{ uri: user?.photoURL ?? DEFAULT_AVATAR_URL }}
         size="large"
         containerStyle={styles.avatar}
       />

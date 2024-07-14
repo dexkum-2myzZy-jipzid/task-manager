@@ -23,3 +23,31 @@ export function sortAndMergeTasks(tasksArray: Task[]) {
   // Merge and return the sorted tasks
   return [...sortedUnfinishedTasks, ...sortedFinishedTasks];
 }
+
+export const getTimePeriod = (filter: string): { start: Date; end: Date } => {
+  let startOfPeriod = new Date();
+  let endOfPeriod = new Date();
+
+  switch (filter) {
+    case "daily":
+      startOfPeriod.setHours(0, 0, 0, 0);
+      endOfPeriod.setHours(23, 59, 59, 999);
+      break;
+    case "weekly":
+      const dayOfWeek = startOfPeriod.getDay();
+      startOfPeriod.setDate(startOfPeriod.getDate() - dayOfWeek);
+      startOfPeriod.setHours(0, 0, 0, 0);
+      endOfPeriod.setDate(endOfPeriod.getDate() + (6 - dayOfWeek));
+      endOfPeriod.setHours(23, 59, 59, 999);
+      break;
+    case "monthly":
+      startOfPeriod.setDate(1);
+      startOfPeriod.setHours(0, 0, 0, 0);
+      endOfPeriod.setMonth(endOfPeriod.getMonth() + 1);
+      endOfPeriod.setDate(0);
+      endOfPeriod.setHours(23, 59, 59, 999);
+      break;
+  }
+
+  return { start: startOfPeriod, end: endOfPeriod };
+};

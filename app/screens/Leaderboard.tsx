@@ -13,6 +13,7 @@ import {
 import { Task } from "../model/Task";
 import { UserTaskCount } from "../model/UserTaskCount";
 import { DB_NAME } from "../constants";
+import { getTimePeriod } from "../utils";
 
 const Leaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState<UserTaskCount[]>([]);
@@ -26,37 +27,10 @@ const Leaderboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      let startOfPeriod = new Date();
-      let endOfPeriod = new Date();
-      switch (filter) {
-        case "daily":
-          startOfPeriod.setHours(0, 0, 0, 0);
-          endOfPeriod.setHours(23, 59, 59, 999);
-          break;
-        case "weekly":
-          const dayOfWeek = startOfPeriod.getDay();
-          startOfPeriod.setDate(startOfPeriod.getDate() - dayOfWeek);
-          startOfPeriod.setHours(0, 0, 0, 0);
-          endOfPeriod.setDate(endOfPeriod.getDate() + (6 - dayOfWeek));
-          endOfPeriod.setHours(23, 59, 59, 999);
-          break;
-        case "monthly":
-          startOfPeriod.setDate(1);
-          startOfPeriod.setHours(0, 0, 0, 0);
-          endOfPeriod.setMonth(endOfPeriod.getMonth() + 1);
-          endOfPeriod.setDate(0);
-          endOfPeriod.setHours(23, 59, 59, 999);
-          break;
-      }
+      const { start, end } = getTimePeriod(filter);
 
-      console.log("startOfPeriod:", startOfPeriod);
-      console.log("endOfPeriod:", endOfPeriod);
-
-      const startTimestamp = Timestamp.fromDate(startOfPeriod);
-      const endTimestamp = Timestamp.fromDate(endOfPeriod);
-
-      console.log("startTimestamp:", startTimestamp);
-      console.log("endTimestamp:", endTimestamp);
+      const startTimestamp = Timestamp.fromDate(start);
+      const endTimestamp = Timestamp.fromDate(end);
 
       const tasksCollection = collection(FIREBASE_DB, DB_NAME);
       const q = query(
@@ -72,7 +46,6 @@ const Leaderboard = () => {
         querySnapshot.forEach((doc) => {
           tasks.push({ id: doc.id, ...doc.data() } as Task);
         });
-        console.log("tasks:", tasks);
 
         const userTaskCounts: { [uid: string]: number } = tasks.reduce(
           (acc: { [uid: string]: number }, task) => {
@@ -116,7 +89,6 @@ const Leaderboard = () => {
           <Text style={styles.filterTitle}>monthly</Text>
         </TouchableOpacity>
       </View>
-      {/* 展示leaderboardData */}
       <View style={styles.leaderboardContainer}>
         {leaderboardData.map((user, index) => (
           <View key={user.uid} style={styles.userContainer}>

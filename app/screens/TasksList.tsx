@@ -1,5 +1,4 @@
 import { View, FlatList, Button, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../context/UserContext";
 import { useEffect, useState } from "react";
 import { FIREBASE_DB } from "../../config/FirebaseConfig";
@@ -20,13 +19,8 @@ const TasksList = () => {
   const { image, setImage, pickImage } = useImagePicker();
 
   const { user } = useUser();
-  const navigation = useNavigation();
 
   useEffect(() => {
-    if (!user) {
-      navigation.navigate("Login");
-    }
-
     const tasksRef = collection(FIREBASE_DB, DB_NAME);
 
     const q = query(tasksRef, where("createdBy", "==", user?.email));
